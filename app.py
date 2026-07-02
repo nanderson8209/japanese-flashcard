@@ -22,7 +22,7 @@ def get_japanese_example(word):
     
     params = {
         "q": word,
-        "from": "ja",
+        "from": "jp",
         "to": "zh",
         "appid": BAIDU_APP_ID,
         "salt": salt,
