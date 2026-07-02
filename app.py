@@ -83,33 +83,26 @@ def save_errors(errors):
 
 def generate_question(words, used_indices):
     """生成一道题目"""
-    # 过滤掉已经用过的词（如果词库不够大，允许重复）
     available = [i for i in range(len(words)) if i not in used_indices]
     if not available:
-        available = list(range(len(words)))  # 词库用完则重置
+        available = list(range(len(words)))
     
     correct_idx = random.choice(available)
     correct_word = words[correct_idx]
     
-    # 随机决定方向：True=日→中，False=中→日
     direction = random.choice([True, False])
     
-    # 生成干扰项
     other_words = [w for i, w in enumerate(words) if i != correct_idx]
     distractors = random.sample(other_words, min(3, len(other_words)))
     
-    # 如果干扰项不够，用随机词补全（实际不会发生）
     while len(distractors) < 3:
         distractors.append({"jp": "ダミー", "kana": "だみー", "zh": "占位"})
     
-    # 构建选项
     if direction:
-        # 日→中：显示日语，选中文
         question_text = f"「{correct_word['jp']}」是什么意思？"
         correct_answer = correct_word['zh']
         options = [correct_answer] + [d['zh'] for d in distractors[:3]]
     else:
-        # 中→日：显示中文，选日语
         question_text = f"「{correct_word['zh']}」的日语是什么？"
         correct_answer = correct_word['jp']
         options = [correct_answer] + [d['jp'] for d in distractors[:3]]
@@ -129,7 +122,6 @@ def main():
     st.title("🎮 日语闯关测试")
     st.caption("随机出题 · 四选一 · 答错自动收录到错词本")
     
-    # 初始化 session_state
     if "words" not in st.session_state:
         st.session_state.words = load_words()
         st.session_state.errors = load_errors()
@@ -143,7 +135,6 @@ def main():
     words = st.session_state.words
     errors = st.session_state.errors
     
-    # --- 侧边栏：统计 ---
     with st.sidebar:
         st.header("📊 统计")
         col1, col2 = st.columns(2)
@@ -165,7 +156,6 @@ def main():
             st.session_state.show_errors = not st.session_state.get("show_errors", False)
             st.rerun()
     
-    # --- 显示错词本 ---
     if st.session_state.get("show_errors", False):
         st.subheader("❌ 错词本")
         if errors:
@@ -179,7 +169,6 @@ def main():
             st.info("🎉 错词本是空的，继续加油！")
         st.divider()
     
-    # --- 游戏结束 ---
     if st.session_state.game_over:
         st.success(f"🎉 闯关完成！共答 {st.session_state.total} 题，正确 {st.session_state.score} 题")
         if st.button("🔄 再来一局"):
@@ -192,17 +181,14 @@ def main():
             st.rerun()
         return
     
-    # --- 生成题目 ---
     if st.session_state.question is None:
         st.session_state.question = generate_question(words, st.session_state.used_indices)
         st.session_state.answered = False
     
     q = st.session_state.question
     
-    # --- 显示题目 ---
     st.subheader("📝 " + q["question"])
     
-    # 显示四个选项
     cols = st.columns(2)
     for i, option in enumerate(q["options"]):
         with cols[i % 2]:
@@ -213,7 +199,6 @@ def main():
                     st.session_state.used_indices.append(q["correct_idx"])
                     st.success("✅ 正确！")
                 else:
-                    # 记录错词
                     wrong_word = q["correct_word"]
                     if not any(e["jp"] == wrong_word["jp"] for e in errors):
                         errors.append(wrong_word)
@@ -224,10 +209,8 @@ def main():
                 st.session_state.answered = True
                 st.rerun()
     
-    # --- 下一题按钮 ---
     if st.session_state.answered:
         if st.button("➡️ 下一题", use_container_width=True):
-            # 检查是否所有词都出过了
             if len(st.session_state.used_indices) >= len(words):
                 st.session_state.game_over = True
             else:
@@ -235,8 +218,7 @@ def main():
                 st.session_state.answered = False
             st.rerun()
     
-    # --- 进度条 ---
-    progress = len(st.session_state.used_indices) / len(words)
+    progress = len(st.session_state.used_indices) / len(words) if words else 0
     st.progress(progress, text=f"进度：{len(st.session_state.used_indices)}/{len(words)}")
 
 if __name__ == "__main__":
