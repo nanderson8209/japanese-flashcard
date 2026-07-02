@@ -33,13 +33,22 @@ def get_japanese_example(word):
         response = requests.get(url, params=params)
         response.raise_for_status()
         result = response.json()
+        
+        # 打印完整返回结果（调试用）
+        print("API返回:", result)
+        
         if "trans_result" in result:
             trans = result["trans_result"][0]["dst"]
             return f"📖 {trans}"
+        elif "error_code" in result:
+            # 百度翻译返回错误码
+            error_msg = result.get("error_msg", "未知错误")
+            return f"📖 API错误: {error_msg} (错误码: {result.get('error_code')})"
         else:
-            return "📖 暂无例句"
+            return f"📖 未知返回: {result}"
+            
     except Exception as e:
-        return f"📖 暂无例句"
+        return f"📖 请求失败: {str(e)}"
 
 # --- 数据文件路径 ---
 DATA_FILE = "data.json"
