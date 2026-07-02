@@ -10,7 +10,7 @@ import hashlib
 st.set_page_config(page_title="日语单词卡", page_icon="🇯🇵", layout="centered")
 
 # --- 百度翻译 API 配置（稍后替换） ---
-BAIDU_APP_ID = "MQpV_d92vuh0la8ajim0bge10"        # 稍后替换
+BAIDU_APP_ID = "20260702002641453"        # 稍后替换
 BAIDU_SECRET_KEY = "8N5LcJ3fPsSFSEkEHlzm"       # 稍后替换
 
 def get_japanese_example(word):
